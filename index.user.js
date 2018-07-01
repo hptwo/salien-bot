@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Saliens bot
 // @namespace    http://tampermonkey.net/
-// @version      29.15
+// @version      29.16
 // @description  Beat all the saliens levels
 // @author       https://github.com/meepen/salien-bot
 // @match        https://steamcommunity.com/saliengame
@@ -21,7 +21,7 @@ if (typeof GM_info !== "undefined" && (GM_info.scriptHandler || "Greasemonkey") 
 
 const MAX_LEVEL = 13;
 const BOSS_CHECK = 5; //Number of battles to check planets for a boss.
-	
+
 // reload automatically instead of clicking ok
 context.error = context.GameLoadError = function() {
 	window.location.reload();
@@ -70,7 +70,7 @@ let isJoining = false;
 let battleCount = 0;
 const TryContinue = function TryContinue() {
     let continued = false;
-    if (isJoining) 
+    if (isJoining)
         return continued;
     if (GAME.m_State.m_VictoryScreen) {
         continued = false;
@@ -83,7 +83,7 @@ const TryContinue = function TryContinue() {
             setTimeout(() => {
                 if (GAME.m_State.m_VictoryScreen && GAME.m_State.m_VictoryScreen.children && GAME.m_State.m_VictoryScreen.children[1])
                     GAME.m_State.m_VictoryScreen.children[1].pointertap();
-	    }, 5000);
+	          }, 5000);
         }
     }
     if (GAME.m_State.m_LevelUpScreen) {
@@ -97,7 +97,7 @@ const TryContinue = function TryContinue() {
             setTimeout(() => {
                 if (GAME.m_State.m_LevelUpScreen && GAME.m_State.m_LevelUpScreen.children && GAME.m_State.m_LevelUpScreen.children[1])
                     GAME.m_State.m_LevelUpScreen.children[1].pointertap();
-	    }, 5000);
+	          }, 5000);
         }
     }
     if (GAME.m_State.m_IntroScreen) {
@@ -111,7 +111,7 @@ const TryContinue = function TryContinue() {
             setTimeout(() => {
                 if (GAME.m_State.m_IntroScreen && GAME.m_State.m_IntroScreen.children && GAME.m_State.m_IntroScreen.children[1])
                     GAME.m_State.m_IntroScreen.children[1].pointertap();
-	    }, 5000);
+	          }, 5000);
         }
     }
     if (gServer.m_WebAPI && GAME.m_State instanceof CBootState) { // First screen
@@ -155,7 +155,6 @@ const TryContinue = function TryContinue() {
                 window.location.reload();
             }, 1000);
         }
-        console.log(bestZoneIdx);
         return;
     }
     return continued;
@@ -167,7 +166,6 @@ const CanAttack = function CanAttack(attackname) {
     Manager.m_rtAttackLastUsed = lastUsed;
     return canAttack;
 }
-const GetBestZone = function GetBestZone() {
 const GetBestZone = function GetBestZone() {
     let bestZoneIdx;
     let highestDifficulty = -1;
@@ -247,7 +245,7 @@ const InGame = function InGame() {
 
 const WORST_SCORE = -1 / 0;
 const START_POS = APP.renderer.width;
-
+const CENTER_LINE = APP.renderer.height * 0.6667; // Center lane is about 2/3rds from the top of the screen
 
 const EnemySpeed = function EnemySpeed(enemy) {
     return enemy.m_Sprite.vx;
@@ -261,6 +259,29 @@ const EnemyCenter = function EnemyCenter(enemy) {
         enemy.m_Sprite.x + enemy.m_Sprite.width / 2,
         enemy.m_Sprite.y + enemy.m_Sprite.height / 2
     ];
+}
+
+const BlackholePosition = function EnemyFeet(enemy){
+    return [
+        enemy.m_Sprite.x + enemy.m_Sprite.width / 2,
+        CENTER_LINE //Try to keep black holes centered in the play area.
+    ];
+}
+
+const MeteoriteDrop = function EnemyLane(enemy){
+    if(GAME.m_State instanceof CBossState){
+        //Aim near the bottom of the boss
+        return [
+            k_nDamagePointx+50,
+            enemy.m_Sprite.y + enemy.m_Sprite.height * 0.8
+        ];
+    }
+    return [
+        //Aim at center point of the enemy.
+        k_nDamagePointx+50,
+        enemy.m_Sprite.y + enemy.m_Sprite.height / 2
+    ];
+
 }
 
 const BlackholeOfEnemy = function BlackholeOfEnemy(enemy) {
@@ -401,10 +422,16 @@ class BlackholeAttack extends ProjectileAttack {
     getAttackName() {
         return "blackhole";
     }
+    targetPosition(target) {
+          return BlackholePosition(target);
+    }
 }
 class MeteorAttack extends ProjectileAttack {
     getAttackName() {
         return "boulder";
+    }
+    targetPosition(target) {
+          return MeteoriteDrop(target);
     }
 }
 
@@ -430,13 +457,13 @@ class FreezeAttack extends Attack {
         AttackManager().m_mapKeyCodeToAttacks.get(this.getData().keycode)()
     }
 }
-	
+
 class HealingAttack extends Attack {
     getCurrent() {
         return "healing";
     }
     shouldAttack(delta, enemies) {
-        return GAME.m_State.m_AttackManager.m_bBossLevel;
+        return GAME.m_State.m_AttackManager.m_bBossLevel && GAME.m_State.m_PlayerMaxHealth != GAME.m_State.m_PlayerHealth;
     }
     getData() {
         return AttackManager().m_AttackData[this.getCurrent()];
@@ -445,7 +472,7 @@ class HealingAttack extends Attack {
         AttackManager().m_mapKeyCodeToAttacks.get(this.getData().keycode)()
     }
 }
-	
+
 let attacks = [
     new ClickAttack(),
     new SpecialAttack(),
@@ -492,8 +519,6 @@ context.BOT_FUNCTION = function ticker(delta) {
         }
         return;
     }
-
-
 
     let state = EnemyManager();
 
