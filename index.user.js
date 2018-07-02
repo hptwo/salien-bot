@@ -62,6 +62,8 @@ const AttackManager = function AttackManager() {
 
 let isJoining = false;
 let battleCount = 0;
+let totalCount = 0;
+let bossCount = 0;
 const TryContinue = function TryContinue() {
     let continued = false;
     if (isJoining)
@@ -134,12 +136,13 @@ const TryContinue = function TryContinue() {
             isJoining = true;
             setTimeout(() => isJoining = false, 10000);
         } else if(typeof bestZoneIdx == "number") {
-            console.log("join to zone", bestZoneIdx, "Battle #", battleCount);
+            console.log("join to zone", bestZoneIdx, "Battle #", totalCount, "Boss #", bossCount);
             document.getElementsByClassName('subtitle')[0].textContent = "Joining the zone number " + bestZoneIdx
             isJoining = true;
             GAME.m_State.m_Grid.click(bestZoneIdx % k_NumMapTilesW, (bestZoneIdx / k_NumMapTilesW) | 0);
             setTimeout(() => isJoining = false, 5000);
             battleCount++;
+	    totalCount++;
         }
         else {
             isJoining = true;
@@ -170,7 +173,7 @@ const GetBestZone = function GetBestZone() {
         if (!zone.captured) {
             if (zone.boss) {
                 console.log(`zone ${idx} (${bestZoneIdx % k_NumMapTilesW}, ${(bestZoneIdx / k_NumMapTilesW) | 0}) with boss`);
-
+		bossCount++;
                 return idx;
             }
             if(zone.difficulty > highestDifficulty) {
@@ -229,8 +232,8 @@ const InGame = function InGame() {
 const WORST_SCORE = -1 / 0;
 const START_POS = APP.renderer.width;
 const CENTER_LINE = APP.renderer.height * 0.6667; // Center lane is about 2/3rds from the top of the screen
-const BOTTOM_LINE = APP.renderer.height * 0.8; // Trying to avoid hitting the boss
-const CENTER_SCREEN = APP.renderer.width * 0.6667; // Trying to avoid hitting the boss
+const BOTTOM_LINE = APP.renderer.height * 0.85; // Trying to avoid hitting the boss
+const CENTER_SCREEN = APP.renderer.width * 0.6; // Trying to avoid hitting the boss
 
 const EnemySpeed = function EnemySpeed(enemy) {
     return enemy.m_Sprite.vx;
