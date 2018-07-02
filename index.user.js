@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Saliens bot
 // @namespace    http://tampermonkey.net/
-// @version      29.16
+// @version      29.17
 // @description  Beat all the saliens levels
 // @author       https://github.com/meepen/salien-bot
 // @match        https://steamcommunity.com/saliengame
@@ -19,8 +19,9 @@ if (typeof GM_info !== "undefined" && (GM_info.scriptHandler || "Greasemonkey") 
 (function(context) {
 "use strict";
 
-const MAX_LEVEL = 13;
-const BOSS_CHECK = 5; //Number of battles to check planets for a boss.
+//Number of battles to check planets for a boss.
+//Set to false to disable planet checking logic and remain on the same planet until completion.
+const BOSS_CHECK = false;
 
 // reload automatically instead of clicking ok
 context.error = context.GameLoadError = function() {
@@ -48,13 +49,6 @@ SERVER.ReportScore = function ReportScore(nScore, callback, error) {
     });
 }
 
-const Option = function Option(name, def) {
-    if (window.localStorage[name] === undefined) {
-        context.localStorage[name] = def;
-    }
-    return context.localStorage[name];
-}
-Option("forceLevellingMode", false);
 const SetMouse = function SetMouse(x, y) {
     APP.renderer.plugins.interaction.mouse.global.x = x;
     APP.renderer.plugins.interaction.mouse.global.y = y;
@@ -132,7 +126,7 @@ const TryContinue = function TryContinue() {
     }
     if (GAME.m_State instanceof CBattleSelectionState && !isJoining) {
         let bestZoneIdx = GetBestZone();
-        if(battleCount == BOSS_CHECK){
+        if(typeof BOSS_CHECK=="number" && battleCount == BOSS_CHECK){
             console.log("Battle Count met, leaving planet to check for bosses.");
             document.getElementsByClassName('subtitle')[0].textContent = "Exiting to planet to check for bosses.";
             GAME.m_State.m_LeaveButton.click();
@@ -169,9 +163,7 @@ const CanAttack = function CanAttack(attackname) {
 const GetBestZone = function GetBestZone() {
     let bestZoneIdx;
     let highestDifficulty = -1;
-
-    let isLevelling = context.gPlayerInfo.level < MAX_LEVEL || Option("forceLevellingMode");
-    let maxProgress = isLevelling ? 10000 : 0;
+    let maxProgress = 0;
 
     for (let idx = 0; idx < GAME.m_State.m_Grid.m_Tiles.length; idx++) {
         let zone = GAME.m_State.m_Grid.m_Tiles[idx].Info;
@@ -181,25 +173,15 @@ const GetBestZone = function GetBestZone() {
 
                 return idx;
             }
-
-            if(isLevelling) {
-                if(zone.difficulty > highestDifficulty) {
-                    highestDifficulty = zone.difficulty;
-                    maxProgress = zone.progress;
-                    bestZoneIdx = idx;
-                } else if(zone.difficulty < highestDifficulty) continue;
-
-                if(zone.progress < maxProgress) {
-                    maxProgress = zone.progress;
-                    bestZoneIdx = idx;
-                }
-            } else {
-                if(zone.progress > maxProgress) {
-                    maxProgress = zone.progress;
-                    bestZoneIdx = idx;
-                }
+            if(zone.difficulty > highestDifficulty) {
+                highestDifficulty = zone.difficulty;
+                maxProgress = zone.progress;
+                bestZoneIdx = idx;
+            } else if(zone.difficulty < highestDifficulty) continue;
+            if(zone.progress < maxProgress) {
+                maxProgress = zone.progress;
+                bestZoneIdx = idx;
             }
-
         }
     }
 
@@ -212,7 +194,8 @@ const GetBestZone = function GetBestZone() {
 const GetBestPlanet = function GetBestPlanet() {
     let bestPlanet;
     let bestPlanetIdx;
-    let maxProgress = 0;
+    let bestPlanetZoneDifficulty = -1;
+    let maxProgress = 10000;
 
     if (!GAME.m_State.m_mapPlanets)
         return;
@@ -223,7 +206,7 @@ const GetBestPlanet = function GetBestPlanet() {
             console.log(`selecting planet ${planet.state.name} with boss at (${planet.state.boss_zone_position.x},${planet.state.boss_zone_position.y}) progress: ${planet.state.capture_progress}`);
             return idx;
         }
-        if(planet.state.active && !planet.state.captured && planet.state.capture_progress > maxProgress) {
+        if(planet.state.active && !planet.state.captured && planet.state.capture_progress < maxProgress) {
             maxProgress = planet.state.capture_progress;
             bestPlanet = planet;
             bestPlanetIdx = idx;
