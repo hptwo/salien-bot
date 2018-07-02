@@ -229,6 +229,7 @@ const InGame = function InGame() {
 const WORST_SCORE = -1 / 0;
 const START_POS = APP.renderer.width;
 const CENTER_LINE = APP.renderer.height * 0.6667; // Center lane is about 2/3rds from the top of the screen
+const BOTTOM_LINE = APP.renderer.height * 0.8; // Trying to avoid hitting the boss
 
 const EnemySpeed = function EnemySpeed(enemy) {
     return enemy.m_Sprite.vx;
@@ -253,10 +254,10 @@ const BlackholePosition = function EnemyFeet(enemy){
 
 const MeteoriteDrop = function EnemyLane(enemy){
     if(GAME.m_State instanceof CBossState){
-        //Aim near the bottom of the boss
+        //Aim below the boss
         return [
             k_nDamagePointx+50,
-            enemy.m_Sprite.y + enemy.m_Sprite.height * 0.8
+            BOTTOM_LINE
         ];
     }
     return [
