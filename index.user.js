@@ -127,7 +127,6 @@ const TryContinue = function TryContinue() {
         continued = true;
     }
     if (GAME.m_State instanceof CBattleSelectionState && !isJoining) {
-        let bestZoneIdx = GetBestZone();
         if(typeof BOSS_CHECK=="number" && battleCount == BOSS_CHECK){
             console.log("Battle Count met, leaving planet to check for bosses.");
             document.getElementsByClassName('subtitle')[0].textContent = "Exiting to planet to check for bosses.";
@@ -135,23 +134,27 @@ const TryContinue = function TryContinue() {
             battleCount = 0;
             isJoining = true;
             setTimeout(() => isJoining = false, 10000);
-        } else if(typeof bestZoneIdx == "number") {
-            console.log("join to zone", bestZoneIdx, "Battle #", totalCount, "Boss #", bossCount);
-            document.getElementsByClassName('subtitle')[0].textContent = "Joining the zone number " + bestZoneIdx
-            isJoining = true;
-            GAME.m_State.m_Grid.click(bestZoneIdx % k_NumMapTilesW, (bestZoneIdx / k_NumMapTilesW) | 0);
-            setTimeout(() => isJoining = false, 5000);
-            battleCount++;
-	    totalCount++;
         }
-        else {
-            isJoining = true;
-            GAME.m_State.m_LeaveButton.click();
-            console.log("Leaving planet, no zones left");
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
-        }
+	else {
+            let bestZoneIdx = GetBestZone();
+            if(typeof bestZoneIdx == "number") {
+                console.log("join to zone", bestZoneIdx, "Battle #", totalCount, "Boss #", bossCount);
+                document.getElementsByClassName('subtitle')[0].textContent = "Joining the zone number " + bestZoneIdx
+                isJoining = true;
+                GAME.m_State.m_Grid.click(bestZoneIdx % k_NumMapTilesW, (bestZoneIdx / k_NumMapTilesW) | 0);
+                setTimeout(() => isJoining = false, 5000);
+                battleCount++;
+	        totalCount++;
+            }
+            else {
+                isJoining = true;
+                GAME.m_State.m_LeaveButton.click();
+                console.log("Leaving planet, no zones left");
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            }
+	}
         return;
     }
     return continued;
