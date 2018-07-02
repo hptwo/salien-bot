@@ -21,7 +21,7 @@ if (typeof GM_info !== "undefined" && (GM_info.scriptHandler || "Greasemonkey") 
 
 //Number of battles to check planets for a boss.
 //Set to false to disable planet checking logic and remain on the same planet until completion.
-const BOSS_CHECK = 5;
+const BOSS_CHECK = 1;
 
 // reload automatically instead of clicking ok
 context.error = context.GameLoadError = function() {
@@ -68,7 +68,7 @@ const TryContinue = function TryContinue() {
         return continued;
     if (GAME.m_State.m_VictoryScreen) {
         continued = false;
-        if (GAME.m_State.m_VictoryScreen.children[1] && GAME.m_State.m_VictoryScreen.children[1].visible) {
+        if (GAME.m_State.m_VictoryScreen && GAME.m_State.m_VictoryScreen.children && GAME.m_State.m_VictoryScreen.children[1] && GAME.m_State.m_VictoryScreen.children[1].visible) {
         console.log(`VictoryScreen continue button pressed`);
             continued = true;
             isJoining = true;
@@ -82,7 +82,7 @@ const TryContinue = function TryContinue() {
     }
     if (GAME.m_State.m_LevelUpScreen) {
         continued = false;
-        if (GAME.m_State.m_LevelUpScreen.children[1] && GAME.m_State.m_LevelUpScreen.children[1].visible) {
+        if (GAME.m_State.m_LevelUpScreen && GAME.m_State.m_LevelUpScreen.children && GAME.m_State.m_LevelUpScreen.children[1] && GAME.m_State.m_LevelUpScreen.children[1].visible) {
             console.log(`LevelUpScreen continue button pressed`);
             continued = true;
             isJoining = true;
@@ -96,7 +96,7 @@ const TryContinue = function TryContinue() {
     }
     if (GAME.m_State.m_IntroScreen && GAME.m_State.m_VictoryScreen == undefined) {
         continued = false;
-        if (GAME.m_State.m_IntroScreen.children[1] && GAME.m_State.m_IntroScreen.children[1].visible) {
+        if (GAME.m_State.m_IntroScreen && GAME.m_State.m_IntroScreen.children && GAME.m_State.m_IntroScreen.children[1] && GAME.m_State.m_IntroScreen.children[1].visible) {
             console.log(`IntroScreen continue button pressed`);
             continued = true;
             isJoining = true;
@@ -451,7 +451,7 @@ class HealingAttack extends Attack {
         return "healing";
     }
     shouldAttack(delta, enemies) {
-        return GAME.m_State.m_AttackManager.m_bBossLevel && GAME.m_State.m_PlayerMaxHealth != GAME.m_State.m_PlayerHealth;
+        return GAME.m_State.m_AttackManager.m_bBossLevel;
     }
     getData() {
         return AttackManager().m_AttackData[this.getCurrent()];
