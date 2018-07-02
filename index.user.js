@@ -268,12 +268,18 @@ const MeteoriteDrop = function EnemyLane(enemy){
             BOTTOM_LINE
         ];
     }
-    return [
-        //Aim at center point of the enemy.
-        k_nDamagePointx+50,
-        enemy.m_Sprite.y + enemy.m_Sprite.height / 2
-    ];
+    var finalTargetPosition = EnemyCenter(enemy);
 
+    // If target is stuck in blackhole, shoot at black hole instead
+    var blackhole = BlackholeOfEnemy(enemy);
+    if(blackhole != null) {
+        finalTargetPosition = [blackhole.x, blackhole.y];
+    }
+
+    // Meteor drop is quite slow, so we need to aim ahead of the target
+    finalTargetPosition[0] += 50*EnemySpeed(enemy);
+
+    return finalTargetPosition;
 }
 
 const BlackholeOfEnemy = function BlackholeOfEnemy(enemy) {
