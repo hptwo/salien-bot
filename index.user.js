@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Saliens bot
 // @namespace    http://tampermonkey.net/
-// @version      29.18
+// @version      29.19
 // @description  Beat all the saliens levels
 // @author       https://github.com/meepen/salien-bot
 // @match        https://steamcommunity.com/saliengame
@@ -309,7 +309,7 @@ class ClickAttack extends Attack {
         return this.nextAttackDelta <= 0;;
     }
     score(enemy) {
-        if (enemy.m_bDead)
+        if (enemy.m_bDead || enemy instanceof CBoss)
             return WORST_SCORE;
         return 1 - EnemyDistance(enemy);
     }
@@ -342,7 +342,7 @@ class ProjectileAttack extends Attack {
         return CanAttack(this.getAttackName());
     }
     score(enemy) {
-        if (enemy.m_bDead)
+        if (enemy.m_bDead || enemy instanceof CBoss)
             return WORST_SCORE;
         return enemy.m_nHealth;
     }
@@ -404,6 +404,11 @@ class BombAttack extends ProjectileAttack {
 class BlackholeAttack extends ProjectileAttack {
     getAttackName() {
         return "blackhole";
+    }
+    score(enemy) { //Restore default behavior to spawn on bosses.
+        if (enemy.m_bDead)
+            return WORST_SCORE;
+        return enemy.m_nHealth;
     }
     targetPosition(target) {
           return BlackholePosition(target);
