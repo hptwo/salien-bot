@@ -230,6 +230,7 @@ const WORST_SCORE = -1 / 0;
 const START_POS = APP.renderer.width;
 const CENTER_LINE = APP.renderer.height * 0.6667; // Center lane is about 2/3rds from the top of the screen
 const BOTTOM_LINE = APP.renderer.height * 0.8; // Trying to avoid hitting the boss
+const CENTER_SCREEN = APP.renderer.width * 0.5; // Trying to avoid hitting the boss
 
 const EnemySpeed = function EnemySpeed(enemy) {
     return enemy.m_Sprite.vx;
@@ -246,6 +247,13 @@ const EnemyCenter = function EnemyCenter(enemy) {
 }
 
 const BlackholePosition = function EnemyFeet(enemy){
+    if(GAME.m_State instanceof CBossState){
+        //Aim before the boss
+        return [
+            CENTER_SCREEN,
+            CENTER_LINE
+        ];
+    }
     return [
         enemy.m_Sprite.x + enemy.m_Sprite.width / 2,
         CENTER_LINE //Try to keep black holes centered in the play area.
