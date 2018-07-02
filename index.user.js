@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Saliens bot
 // @namespace    http://tampermonkey.net/
-// @version      29.17
+// @version      29.18
 // @description  Beat all the saliens levels
 // @author       https://github.com/meepen/salien-bot
 // @match        https://steamcommunity.com/saliengame
@@ -21,7 +21,7 @@ if (typeof GM_info !== "undefined" && (GM_info.scriptHandler || "Greasemonkey") 
 
 //Number of battles to check planets for a boss.
 //Set to false to disable planet checking logic and remain on the same planet until completion.
-const BOSS_CHECK = false;
+const BOSS_CHECK = 5;
 
 // reload automatically instead of clicking ok
 context.error = context.GameLoadError = function() {
