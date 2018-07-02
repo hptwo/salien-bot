@@ -230,7 +230,7 @@ const WORST_SCORE = -1 / 0;
 const START_POS = APP.renderer.width;
 const CENTER_LINE = APP.renderer.height * 0.6667; // Center lane is about 2/3rds from the top of the screen
 const BOTTOM_LINE = APP.renderer.height * 0.8; // Trying to avoid hitting the boss
-const CENTER_SCREEN = APP.renderer.width * 0.5; // Trying to avoid hitting the boss
+const CENTER_SCREEN = APP.renderer.width * 0.6667; // Trying to avoid hitting the boss
 
 const EnemySpeed = function EnemySpeed(enemy) {
     return enemy.m_Sprite.vx;
