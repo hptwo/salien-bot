@@ -235,8 +235,8 @@ const InGame = function InGame() {
 const WORST_SCORE = -1 / 0;
 const START_POS = APP.renderer.width;
 const CENTER_LINE = APP.renderer.height * 0.6667; // Center lane is about 2/3rds from the top of the screen
-const BOTTOM_LINE = APP.renderer.height * 0.85; // Trying to avoid hitting the boss
-const CENTER_SCREEN = APP.renderer.width * 0.6; // Trying to avoid hitting the boss
+const BOTTOM_LINE = APP.renderer.height * 0.6667; // Trying to hit the boss
+const CENTER_SCREEN = APP.renderer.width * 0.75; // Trying to hit the boss
 
 const EnemySpeed = function EnemySpeed(enemy) {
     return enemy.m_Sprite.vx;
@@ -330,7 +330,7 @@ class ClickAttack extends Attack {
         return this.nextAttackDelta <= 0;;
     }
     score(enemy) {
-        if (enemy.m_bDead || enemy instanceof CBoss)
+        if (enemy.m_bDead)
             return WORST_SCORE;
         return 1 - EnemyDistance(enemy);
     }
@@ -363,7 +363,7 @@ class ProjectileAttack extends Attack {
         return CanAttack(this.getAttackName());
     }
     score(enemy) {
-        if (enemy.m_bDead || enemy instanceof CBoss)
+        if (enemy.m_bDead)
             return WORST_SCORE;
         return enemy.m_nHealth;
     }
